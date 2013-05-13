@@ -1,3 +1,7 @@
+" Author: Mohan
+" Date: 13/05/2013
+" my .vimrc settings file
+
 " Sets how many lines of history VIM has to remember
 set history=700
 
@@ -106,3 +110,29 @@ function! HasPaste()
     en
     return ''
 endfunction
+
+
+
+
+
+
+"   *** TIPS ***
+"
+"Markers: ma
+"		  mb
+"		  :
+"		  'a,'bs/test/foo/g
+"
+"Command window:
+"		  q:  #to open and select the line
+"		  :	  #press enter twice to run that command
+"		  ctrl-c # to close the window
+"
+"Regex:
+"		 %s/\(.*\)/Hello \1/g 
+"		 %s/\v^%(foo){1,3}(.+)bar$/\1/ #help :h \v
+"
+"Split windows:
+"		  :split - ctrl-w to switch windows
+"		  :vsplit - ctrl-w to switch windows
+"
