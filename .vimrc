@@ -10,7 +10,6 @@ set formatoptions=tcqr
 
 " Enable filetype plugins
 filetype plugin on
-filetype plugin on
 
 " Turn on the wild menu
 set wildmenu
@@ -50,7 +49,12 @@ syntax on
 
 " *** COLORS/BACKGROUND ***
 set background=dark
-colorscheme kib_darktango
+" set background=light
+" colorscheme kib_darktango
+" colorscheme evening
+" colorscheme morning
+colorscheme slate
+"colorscheme railscasts
 
 " Show matching brackets when text indicator is over them
 set showmatch
@@ -111,7 +115,8 @@ function! HasPaste()
     return ''
 endfunction
 
-
+call pathogen#infect()
+filetype indent on
 
 
 
