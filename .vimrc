@@ -3,13 +3,13 @@
 " my .vimrc settings file
 
 " Sets how many lines of history VIM has to remember
-set history=700
+set history=1000
 
 " Set format options
 set formatoptions=tcqr
 
 " Enable filetype plugins
-filetype plugin on
+filetype indent plugin on
 
 " Turn on the wild menu
 set wildmenu
@@ -31,6 +31,9 @@ set nowrap
 
 " Use relevant spaces instead of tabs in insert mode
 set noexpandtab
+
+" Use smarttab
+set smarttab
 
 " Columns TAB counts for normally
 set tabstop=4
@@ -105,6 +108,8 @@ autocmd BufReadPost *
 " Remember info about open buffers on close
 set viminfo^=%
 
+set nocompatible
+
 " *** Helper Functions ***
 
 " Returns true if paste mode is enabled
@@ -115,10 +120,17 @@ function! HasPaste()
     return ''
 endfunction
 
+" Pathogen
+call pathogen#helptags()
 call pathogen#infect()
-filetype indent on
 
-
+" Syntastic
+ set statusline+=%#warningmsg#
+ set statusline+=%{SyntasticStatuslineFlag()}
+ set statusline+=%*
+ let g:syntastic_enable_signs=1
+ let g:syntastic_auto_loc_list=1
+ let g:syntastic_quiet_messages = {'level': 'warnings'}
 
 
 "   *** TIPS ***
