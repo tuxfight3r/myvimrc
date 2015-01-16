@@ -564,29 +564,28 @@ function! rails#pluralize(word)
   endif
   let word = s:sub(word,'[aeio]@<!y$','ie')
   let word = s:sub(word,'%(nd|rt)@<=ex$','ice')
-  let word = s:sub(word,'%([osxz]|[cs]h)$','&e')
+  let word = s:sub(word,'%([sxz]|[cs]h)$','&e')
   let word = s:sub(word,'f@<!f$','ve')
   let word .= 's'
   let word = s:sub(word,'ersons$','eople')
   return word
 endfunction
 
-function! rails#app(...)
+function! rails#app(...) abort
   let root = a:0 ? a:1 : get(b:, 'rails_root', '')
   if !empty(root)
-    if !has_key(s:apps, root)
+    if !has_key(s:apps, root) && filereadable(root . '/config/environment.rb')
       let s:apps[root] = deepcopy(s:app_prototype)
       let s:apps[root].root = root
       let s:apps[root]._root = root
     endif
-    return s:apps[root]
+    return get(s:apps, root, {})
   endif
   return {}
 endfunction
 
 function! rails#buffer(...)
   return extend(extend({'#': bufnr(a:0 ? a:1 : '%')},s:buffer_prototype,'keep'),s:readable_prototype,'keep')
-  endif
 endfunction
 
 function! s:buffer_app() dict abort
@@ -899,12 +898,12 @@ endfunction
 function! s:app_prepare_rails_command(cmd) dict abort
   if self.has_path('.zeus.sock') && a:cmd =~# '^\%(console\|dbconsole\|destroy\|generate\|server\|runner\)\>'
     return 'zeus '.a:cmd
+  elseif self.has_path('bin/rails')
+    let cmd = 'bin/rails '.a:cmd
   elseif self.has_path('script/rails')
     let cmd = 'script/rails '.a:cmd
   elseif self.has_path('script/' . matchstr(a:cmd, '\w\+'))
     let cmd = 'script/'.a:cmd
-  elseif self.has_path('bin/rails')
-    let cmd = 'bin/rails '.a:cmd
   elseif self.has('bundler')
     return 'bundle exec rails ' . a:cmd
   else
@@ -949,17 +948,6 @@ function! s:app_execute_rails_command(cmd) dict abort
   return ''
 endfunction
 
-function! s:app_lightweight_ruby_eval(ruby,...) dict abort
-  let def = a:0 ? a:1 : ""
-  if !executable("ruby")
-    return def
-  endif
-  let args = '-e '.s:rquote(a:ruby)
-  let cmd = self.ruby_command(args)
-  silent! let results = system(cmd)
-  return v:shell_error == 0 ? results : def
-endfunction
-
 function! s:app_eval(ruby,...) dict abort
   let def = a:0 ? a:1 : ""
   if !executable("ruby")
@@ -976,7 +964,7 @@ function! s:app_eval(ruby,...) dict abort
   return v:shell_error == 0 ? results : def
 endfunction
 
-call s:add_methods('app', ['ruby_command','ruby_script_command','prepare_rails_command','execute_rails_command','start_rails_command','lightweight_ruby_eval','eval'])
+call s:add_methods('app', ['ruby_command','ruby_script_command','prepare_rails_command','execute_rails_command','start_rails_command','eval'])
 
 " }}}1
 " Commands {{{1
@@ -1016,15 +1004,15 @@ function! s:BufCommands()
 endfunction
 
 function! s:Log(bang,arg)
-  let lf = 'log/' . (empty(a:arg) ? s:environment() : a:arg) . '.log'
+  let lf = rails#app().path('log/' . (empty(a:arg) ? s:environment() : a:arg) . '.log')
   if a:bang
-    exe "cgetfile ".lf
+    exe 'cgetfile' s:fnameescape(lf)
     clast
   else
     if exists(":Tail") == 2
-      Tail  `=rails#app().path(lf)`
+      exe 'Tail'  s:fnameescape(lf)
     else
-      pedit `=rails#app().path(lf)`
+      exe 'pedit' s:fnameescape(lf)
     endif
   endif
 endfunction
@@ -1173,13 +1161,16 @@ call s:add_methods('app', ['rake_tasks'])
 let g:rails#rake_errorformat = '%D(in\ %f),'
       \.'%\\s%#from\ %f:%l:%m,'
       \.'%\\s%#from\ %f:%l:,'
-      \.'%\\s#{RAILS_ROOT}/%f:%l:\ %#%m,'
       \.'%\\s%##\ %f:%l:%m,'
       \.'%\\s%##\ %f:%l,'
       \.'%\\s%#[%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:,'
-      \.'%m\ [%f:%l]:'
+      \.'%m\ [%f:%l]:,'
+      \.'%+Erake\ aborted!,'
+      \.'%+EDon''t\ know\ how\ to\ build\ task\ %.%#,'
+      \.'%+Einvalid\ option:%.%#,'
+      \.'%+Irake\ %\\S%\\+%\\s%\\+#\ %.%#'
 
 function! s:make(bang, args, ...)
   if exists(':Make') == 2
@@ -1201,8 +1192,13 @@ function! s:Rake(bang,lnum,arg)
   try
     call s:push_chdir(1)
     let b:current_compiler = 'rake'
+    if !empty(findfile('compiler/rake.vim', escape(&rtp, ' ')))
+      compiler rake
+    else
+      let &l:errorformat = g:rails#rake_errorformat
+      let b:current_compiler = 'rake'
+    endif
     let &l:makeprg = rails#app().rake_command()
-    let &l:errorformat = g:rails#rake_errorformat
     let arg = a:arg
     if &filetype =~# '^ruby\>' && arg == ''
       let mnum = s:lastmethodline(lnum)
@@ -1608,7 +1604,7 @@ endfunction
 " Script Wrappers {{{1
 
 function! s:BufScriptWrappers()
-  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_script   Rscript       :execute empty(<q-args>) ? rails#app().script_command(<bang>0, 'console') ? rails#app().script_command(<bang>0,<f-args>)
+  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_script   Rscript       :execute empty(<q-args>) ? rails#app().script_command(<bang>0, 'console') : rails#app().script_command(<bang>0,<f-args>)
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_environments Console   :Rails<bang> console <args>
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_script   Rails         :execute rails#app().script_command(<bang>0,<f-args>)
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Rgenerate     :execute rails#app().generator_command(<bang>0,'generate',<f-args>)
@@ -2393,6 +2389,9 @@ function! s:app_commands() dict abort
   let commands.mailer = [
         \ {'pattern': 'app/mailers/*.rb', 'template': "class %S < ActionMailer::Base\nend", 'affinity': 'controller'},
         \ {'pattern': 'app/models/*.rb', 'template': "class %S < ActionMailer::Base\nend", 'affinity': 'controller', 'complete': 0}]
+  let commands.job = [{
+        \ 'pattern': 'app/jobs/*_job.rb',
+        \ 'template': "class %SJob < ActiveJob::Base\nend"}]
   let commands.model = [{
         \ 'pattern': 'app/models/*.rb',
         \ 'template': "class %S\nend",
@@ -2817,9 +2816,14 @@ function! s:readable_resolve_view(name, ...) dict abort
   let pre = 'app/views/'
   if name !~# '/'
     let controller = self.controller_name(1)
+    let found = ''
     if controller != ''
-      let name = controller.'/'.name
+      let found = call(self.resolve_view, [controller.'/'.name] + a:000, self)
     endif
+    if empty(found)
+      let found = call(self.resolve_view, ['application/'.name] + a:000, self)
+    endif
+    return found
   endif
   if name =~# '/' && !self.app().has_path(fnamemodify('app/views/'.name, ':h'))
     return ''
@@ -3342,7 +3346,7 @@ endfunction
 function! s:readable_alternate(...) dict abort
   let candidates = self.alternate_candidates(a:0 ? a:1 : 0)
   for file in candidates
-    if self.app().has_path(file)
+    if self.app().has_path(s:sub(file, '#.*', ''))
       return file
     endif
   endfor
@@ -3790,7 +3794,7 @@ function! rails#buffer_syntax()
           syn keyword rubyRailsTestControllerMethod assert_response assert_redirected_to assert_template assert_recognizes assert_generates assert_routing assert_dom_equal assert_dom_not_equal assert_select assert_select_rjs assert_select_encoded assert_select_email assert_tag assert_no_tag
         endif
       elseif buffer.type_name('spec')
-        syn keyword rubyRailsTestMethod describe context it its specify shared_context shared_examples_for it_should_behave_like it_behaves_like before after around subject fixtures controller_name helper_name scenario feature background
+        syn keyword rubyRailsTestMethod describe context it its specify shared_context shared_examples shared_examples_for shared_context include_examples include_context it_should_behave_like it_behaves_like before after around subject fixtures controller_name helper_name scenario feature background
         syn match rubyRailsTestMethod '\<let\>!\='
         syn keyword rubyRailsTestMethod violated pending expect allow double instance_double mock mock_model stub_model
         syn match rubyRailsTestMethod '\.\@<!\<stub\>!\@!'
@@ -3799,6 +3803,9 @@ function! rails#buffer_syntax()
           syn keyword rubyRailsTestControllerMethod  integrate_views render_views
           syn keyword rubyRailsMethod params request response session flash
           syn keyword rubyRailsMethod polymorphic_path polymorphic_url
+          if buffer.type_name('spec-view')
+            syn keyword rubyRailsTestViewMethod render rendered assign
+          endif
         endif
       endif
       if buffer.type_name('task')
@@ -3881,6 +3888,7 @@ function! s:HiDefaults()
   hi def link rubyRailsControllerMethod       rubyRailsMethod
   hi def link rubyRailsFilterMethod           rubyRailsMethod
   hi def link rubyRailsTestControllerMethod   rubyRailsTestMethod
+  hi def link rubyRailsTestViewMethod         rubyRailsTestMethod
   hi def link rubyRailsTestMethod             rubyRailsMethod
   hi def link rubyRailsRakeMethod             rubyRailsMethod
   hi def link rubyRailsMethod                 railsMethod
@@ -3992,59 +4000,90 @@ endfunction
 " }}}1
 " Database {{{1
 
-function! s:extractdbvar(str,arg)
-  return matchstr("\n".a:str."\n",'\n'.a:arg.'=\zs.\{-\}\ze\n')
+function! rails#yaml_parse_file(file) abort
+  let json = system('ruby -e '.s:rquote('require %{yaml}; require %{json}; File.open(%q{'.a:file.'}) {|f| puts JSON.generate(YAML::load(f))}'))
+  if !v:shell_error && json =~# '^[[{]'
+    return rails#json_parse(json)
+  endif
+  throw 'invalid YAML file: '.a:file
 endfunction
 
-function! s:app_dbext_settings(environment) dict
-  if self.cache.needs('dbext_settings')
-    call self.cache.set('dbext_settings',{})
+function! s:app_db_config(environment) dict
+  let all = {}
+  if self.cache.has('db_config')
+    let all = self.cache.get('db_config')
+  elseif self.has_path('config/database.yml')
+    try
+      let all = rails#yaml_parse_file(self.path('config/database.yml'))
+      call self.cache.set('db_config', all)
+    catch /^invalid/
+    endtry
   endif
-  let cache = self.cache.get('dbext_settings')
-  if !has_key(cache,a:environment)
-    let dict = {}
-    if self.has_path("config/database.yml")
-      let cmdb = 'require %{yaml}; File.open(%q{'.self.path().'/config/database.yml}) {|f| y = YAML::load(f); e = y[%{'
-      let cmde = '}]; i=0; e=y[e] while e.respond_to?(:to_str) && (i+=1)<16; e.each{|k,v|puts k.to_s+%{=}+v.to_s}}'
-      let out = self.lightweight_ruby_eval(cmdb.a:environment.cmde)
-      let adapter = s:extractdbvar(out,'adapter')
-      let adapter = get({'mysql2': 'mysql', 'postgresql': 'pgsql', 'sqlite3': 'sqlite', 'sqlserver': 'sqlsrv', 'sybase': 'asa', 'oracle': 'ora', 'oracle_enhanced': 'ora'},adapter,adapter)
-      let dict['type'] = toupper(adapter)
-      let dict['user'] = s:extractdbvar(out,'username')
-      let dict['passwd'] = s:extractdbvar(out,'password')
-      if dict['passwd'] == '' && adapter == 'mysql'
-        " Hack to override password from .my.cnf
-        let dict['extra'] = ' --password='
-      else
-        let dict['extra'] = ''
-      endif
-      let dict['dbname'] = s:extractdbvar(out,'database')
-      if dict['dbname'] == ''
-        let dict['dbname'] = s:extractdbvar(out,'dbfile')
-      endif
-      if dict['dbname'] != '' && dict['dbname'] !~ '^:' && adapter =~? '^sqlite'
-        let dict['dbname'] = self.path(dict['dbname'])
-      endif
-      let dict['profile'] = ''
-      if adapter == 'ora'
-        let dict['srvname'] = s:extractdbvar(out,'database')
-      else
-        let dict['srvname'] = s:extractdbvar(out,'host')
-      endif
-      let dict['host'] = s:extractdbvar(out,'host')
-      let dict['port'] = s:extractdbvar(out,'port')
-      let dict['dsnname'] = s:extractdbvar(out,'dsn')
-      if dict['host'] =~? '^\cDBI:'
-        if dict['host'] =~? '\c\<Trusted[_ ]Connection\s*=\s*yes\>'
-          let dict['integratedlogin'] = 1
-        endif
-        let dict['host'] = matchstr(dict['host'],'\c\<\%(Server\|Data Source\)\s*=\s*\zs[^;]*')
-      endif
-      call filter(dict,'v:val != ""')
+  if has_key(all, a:environment)
+    return all[a:environment]
+  elseif self.has_gem('rails-default-database')
+    let db = s:gsub(fnamemodify(self.path(), ':t'), '[^[:alnum:]]+', '_') .
+          \ '_' . a:environment
+    if self.has_gem('pg')
+      return {'adapter': 'postgresql', 'database': db}
+    elseif self.has_gem('mysql') || self.has_gem('mysql2')
+      return {'adapter': 'mysql', 'database': db}
+    elseif self.has_gem('sqlite3')
+      return {'adapter': 'sqlite3', 'database': 'db/'.a:environment.'.sqlite3'}
     endif
-    let cache[a:environment] = dict
   endif
-  return cache[a:environment]
+  return {}
+endfunction
+
+function! s:app_dbext_settings(environment) dict abort
+  let config = self.db_config(a:environment)
+  if has_key(config, 'adapter')
+    let dict = {}
+    let adapter = config.adapter
+    let adapter = get({
+          \ 'mysql2': 'mysql',
+          \ 'postgresql': 'pgsql',
+          \ 'sqlite3': 'sqlite',
+          \ 'sqlserver': 'sqlsrv',
+          \ 'sybase': 'asa',
+          \ 'oracle': 'ora',
+          \ 'oracle_enhanced': 'ora'},
+          \ adapter, adapter)
+    let dict.type = toupper(adapter)
+    let dict.user = get(config, 'username', '')
+    let dict.passwd = get(config, 'password', '')
+    if adapter == 'mysql'
+      if empty(dict.user)
+        let dict.user = 'root'
+      endif
+      if dict.passwd == ''
+        " Hack to override password from .my.cnf
+        let dict.extra = ' --password='
+      endif
+    endif
+    let dict.dbname = get(config, 'database', get(config, 'dbfile', ''))
+    if len(dict.dbname) && dict.dbname !~ '^:' && adapter =~? '^sqlite'
+      let dict.dbname = self.path(dict.dbname)
+    endif
+    let dict.profile = ''
+    if adapter == 'ora'
+      let dict.srvname = get(config, 'database', '')
+    else
+      let dict.srvname = get(config, 'host', '')
+    endif
+    let dict.host = get(config, 'host', '')
+    let dict.port = get(config, 'port', '')
+    let dict.dsnname = get(config, 'dsn', '')
+    if dict.host =~? '^\cDBI:'
+      if dict.host =~? '\c\<Trusted[_ ]Connection\s*=\s*yes\>'
+        let dict.integratedlogin = 1
+      endif
+      let dict.host = matchstr(dict.host,'\c\<\%(Server\|Data Source\)\s*=\s*\zs[^;]*')
+    endif
+    call filter(dict,'len(v:val)')
+    return dict
+  endif
+  return {}
 endfunction
 
 function! s:BufDatabase(level, ...)
@@ -4053,7 +4092,7 @@ function! s:BufDatabase(level, ...)
   endif
   let self = rails#app()
   if a:level > 1
-    call self.cache.clear('dbext_settings')
+    call self.cache.clear('db_config')
   elseif exists('g:rails_no_dbext')
     return
   endif
@@ -4062,10 +4101,13 @@ function! s:BufDatabase(level, ...)
   else
     let env = s:environment()
   endif
-  if (!self.cache.has('dbext_settings') || !has_key(self.cache.get('dbext_settings'),env)) && a:level <= 0
+  if !self.cache.has('db_config') && a:level <= 0
     return
   endif
   let dict = self.dbext_settings(env)
+  if empty(dict)
+    return
+  endif
   for key in ['type', 'profile', 'bin', 'user', 'passwd', 'dbname', 'srvname', 'host', 'port', 'dsnname', 'extra', 'integratedlogin']
     let b:dbext_{key} = get(dict,key,'')
   endfor
@@ -4080,7 +4122,7 @@ function! s:BufDatabase(level, ...)
   endif
 endfunction
 
-call s:add_methods('app', ['dbext_settings'])
+call s:add_methods('app', ['db_config', 'dbext_settings'])
 
 " }}}1
 " Abbreviations {{{1
@@ -4555,7 +4597,7 @@ function! s:SetBasePath() abort
 
   let path += ['app/*', 'app/views']
   if self.controller_name() != ''
-    let path += ['app/views/'.self.controller_name(), 'public']
+    let path += ['app/views/'.self.controller_name(), 'app/views/application', 'public']
   endif
   if self.app().has('test')
     let path += ['test', 'test/unit', 'test/functional', 'test/integration', 'test/controllers', 'test/helpers', 'test/mailers', 'test/models']
@@ -4663,7 +4705,7 @@ augroup railsPluginAuto
   autocmd User BufEnterRails call s:resetomnicomplete()
   autocmd User BufEnterRails call s:BufDatabase(-1)
   autocmd User dbextPreConnection call s:BufDatabase(1)
-  autocmd BufWritePost */config/database.yml      call rails#cache_clear("dbext_settings")
+  autocmd BufWritePost */config/database.yml      call rails#cache_clear("db_config")
   autocmd BufWritePost */config/projections.json  call rails#cache_clear("projections")
   autocmd BufWritePost */test/test_helper.rb      call rails#cache_clear("user_assertions")
   autocmd BufWritePost */config/routes.rb         call rails#cache_clear("named_routes")
