@@ -28,6 +28,7 @@ set smartindent
 
 " set no wrap long lines of code
 set nowrap
+nnoremap <F4> :set wrap!<CR>
 
 " Use relevant spaces instead of tabs in insert mode
 set noexpandtab
@@ -132,6 +133,10 @@ call pathogen#infect()
  let g:syntastic_auto_loc_list=1
  let g:syntastic_quiet_messages = {'level': 'warnings'}
 
+ " NerdTree
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+map <C-n> :NERDTreeToggle<CR>
 
 "   *** TIPS ***
 "
