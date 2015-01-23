@@ -7,15 +7,18 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 
 #####Available Plugins:#####
 
-*  GistGistGistGist.vim
+*  Gist.vim
 *  IndexedSearch
 *  jquery
+*  matchit.zip
 *  nerdtree
 *  snipmate.vim
 *  Specky
 *  supertab
 *  syntastic
 *  tabular
+*  taskpaper.vim
+*  tComment
 *  textile.vim
 *  vim-cucumber
 *  vim-fugitive
@@ -33,5 +36,4 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 *  vim-surround
 *  vim-tmux
 *  vim-vividchalk
-
 
