@@ -104,6 +104,9 @@ set showmode
 " set cindent
 set nocindent
 
+" Enable Fold Marker
+set foldmethod=marker foldmarker={{{,}}}
+
 " set modeline for modeline magic
 set modeline
 
@@ -208,6 +211,7 @@ nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
 "
 "Fold Trick
 "zf#j - # n no of line - zf2j (2 lines)
+"zf/<word> - till the next occurance of the word from cursor (fold a block of lines))
 "zo - open the fold at the cursor
 "zc - close the fold at the cursor
 "zd - deletes the fold at the cursor
