@@ -16,7 +16,7 @@ set ruler
 
 " Display line number
 " set nu! - to hide numbers
-set number
+" set number
 nnoremap <F3> :set nonumber!<CR>
 
 " *** INDENTING ***
@@ -59,10 +59,10 @@ set background=dark
 " colorscheme kib_darktango
 " colorscheme evening
 " colorscheme morning
-colorscheme slate
-"colorscheme railscasts
+" colorscheme slate
+" colorscheme railscasts
 
-" Show matching brackets when text indicator is over them
+" Show matching brackets when text indicator is over them [] {} ()
 set showmatch
 
 " For regular expressions turn magic on
@@ -81,7 +81,8 @@ set ruler
 "Highlight Current line
 set cursorline
 hi ColorColumn  ctermbg=darkgrey guibg=gray13 cterm=underline term=underline guifg=white
-hi CursorLine   ctermbg=darkgrey guibg=gray13 cterm=NONE term=bold guifg=white
+"hi CursorLine   ctermbg=DarkMagenta guibg=gray13 cterm=NONE term=bold guifg=white
+hi CursorLine   ctermbg=darkgray guibg=gray13 cterm=NONE term=bold guifg=white
 
 " don't blink the cursor
 set guicursor+=i:blinkwait0
@@ -95,7 +96,7 @@ nnoremap <F5> :set nolist!<CR>
 set listchars=tab:▸\ ,eol:¬,nbsp:⋅
 
 " Format the status line
-set statusline+=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l,%c\ \ \ Percentage:\ %P
+"set statusline+=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ %m\ \ \ %=%{&ff}\ \ \%y\ \ \ Line:%l,%c\ \ \ Percentage:\ %P
 
 " Display the current mode
 set showmode
@@ -185,6 +186,16 @@ function! AppendModeline()
   call append(line("$"), l:modeline)
 endfunction
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
+
+" enable all Python syntax highlighting features
+let python_highlight_all = 1
+
+" Install power line `pip install --user powerline-status`
+set rtp+=~/.local/lib/python2.7/site-packages/powerline/bindings/vim
+set t_Co=256
+let g:airline_powerline_fonts = 1
+let g:Powerline_symbols = 'fancy'
+
 
 "   *** TIPS ***
 "
