@@ -1,4 +1,4 @@
-# vim-javascript v0.9.0
+# vim-javascript v0.10.0
 
 JavaScript bundle for vim, this bundle provides syntax and indent plugins.
 
@@ -26,7 +26,7 @@ then simply perform the following commands to fix your current buffer:
 
 Add to vimrc:
 
-    Plugin "pangloss/vim-javascript"
+    Plugin 'pangloss/vim-javascript'
 
 And install it:
 
@@ -35,8 +35,7 @@ And install it:
 
 ### Install with [pathogen](https://github.com/tpope/vim-pathogen)
 
-      cd ~/.vim/bundle
-      git clone https://github.com/pangloss/vim-javascript.git
+      git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 
 ## Configuration
 
@@ -67,13 +66,16 @@ Default Value: 0
 You can customize concealing characters by defining one or more of the following
 variables:
 
-    let g:javascript_conceal_function   = "ƒ"
-    let g:javascript_conceal_null       = "ø"
-    let g:javascript_conceal_this       = "@"
-    let g:javascript_conceal_return     = "⇚"
-    let g:javascript_conceal_undefined  = "¿"
-    let g:javascript_conceal_NaN        = "ℕ"
-    let g:javascript_conceal_prototype  = "¶"
+    let g:javascript_conceal_function       = "ƒ"
+    let g:javascript_conceal_null           = "ø"
+    let g:javascript_conceal_this           = "@"
+    let g:javascript_conceal_return         = "⇚"
+    let g:javascript_conceal_undefined      = "¿"
+    let g:javascript_conceal_NaN            = "ℕ"
+    let g:javascript_conceal_prototype      = "¶"
+    let g:javascript_conceal_static         = "•"
+    let g:javascript_conceal_super          = "Ω"
+    let g:javascript_conceal_arrow_function = "⇒"
 
 ## Contributing
 

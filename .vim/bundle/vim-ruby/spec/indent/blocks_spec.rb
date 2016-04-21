@@ -21,6 +21,22 @@ describe "Indenting" do
     EOF
   end
 
+  specify "blocks with assignment on the previous line" do
+    assert_correct_indenting <<-EOF
+      foo =
+        something do
+          "other"
+        end
+    EOF
+
+    assert_correct_indenting <<-EOF
+      @foo ||=
+        something do
+          "other"
+        end
+    EOF
+  end
+
   specify "blocks with multiline parameters" do
     assert_correct_indenting <<-EOF
       def foo
@@ -63,6 +79,20 @@ describe "Indenting" do
       proc do |(a, (b, c)), d|
         puts a, b
         puts c, d
+      end
+    EOF
+  end
+
+  specify "blocks with default arguments" do
+    assert_correct_indenting <<-EOF
+      proc do |a = 1|
+        puts a
+      end
+    EOF
+
+    assert_correct_indenting <<-EOF
+      proc do |a: "asdf", b:|
+        puts a, b
       end
     EOF
   end

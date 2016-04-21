@@ -16,7 +16,7 @@ setlocal nosmartindent
 " Now, set up our indentation expression and keys that trigger it.
 setlocal indentexpr=GetJavascriptIndent()
 setlocal formatexpr=Fixedgq(v:lnum,v:count)
-setlocal indentkeys=0{,0},0),0],0\,,!^F,o,O,e
+setlocal indentkeys=0{,0},0),0],0\,:,!^F,o,O,e
 
 " Only define the function once.
 if exists("*GetJavascriptIndent")
@@ -26,11 +26,22 @@ endif
 let s:cpo_save = &cpo
 set cpo&vim
 
+" Get shiftwidth value
+if exists('*shiftwidth')
+  func s:sw()
+    return shiftwidth()
+  endfunc
+else
+  func s:sw()
+    return &sw
+  endfunc
+endif
+
 " 1. Variables {{{1
 " ============
 
-let s:js_keywords = '^\s*\(break\|case\|catch\|continue\|debugger\|default\|delete\|do\|else\|finally\|for\|function\|if\|in\|instanceof\|new\|return\|switch\|this\|throw\|try\|typeof\|var\|void\|while\|with\)'
-
+let s:js_keywords = '^\s*\(break\|catch\|const\|continue\|debugger\|delete\|do\|else\|finally\|for\|function\|if\|in\|instanceof\|let\|new\|return\|switch\|this\|throw\|try\|typeof\|var\|void\|while\|with\)'
+let s:expr_case = '^\s*\(case\s\+[^\:]*\|default\)\s*:\s*'
 " Regex of syntax group names that are or delimit string or are comments.
 let s:syng_strcom = 'string\|regex\|comment\c'
 
@@ -49,18 +60,18 @@ let s:skip_expr = "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".s:syng_st
 let s:line_term = '\s*\%(\%(\/\/\).*\)\=$'
 
 " Regex that defines continuation lines, not including (, {, or [.
-let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\)' . s:line_term
+let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\|[^=]=[^=].*,\)' . s:line_term
 
 " Regex that defines continuation lines.
 " TODO: this needs to deal with if ...: and so on
-let s:msl_regex = '\%([\\*+/.:([]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\)' . s:line_term
+let s:msl_regex = s:continuation_regex.'|'.s:expr_case
 
-let s:one_line_scope_regex = '\<\%(if\|else\|for\|while\)\>[^{;]*' . s:line_term
+let s:one_line_scope_regex = '\%(\<else\>\|\<\%(if\|for\|while\)\>\s*(.*)\)' . s:line_term
 
 " Regex that defines blocks.
 let s:block_regex = '\%([{[]\)\s*\%(|\%([*@]\=\h\w*,\=\s*\)\%(,\s*[*@]\=\h\w*\)*|\)\=' . s:line_term
 
-let s:var_stmt = '^\s*var'
+let s:var_stmt = '^\s*(const\|let\|var)'
 
 let s:comma_first = '^\s*,'
 let s:comma_last = ',\s*$'
@@ -68,6 +79,16 @@ let s:comma_last = ',\s*$'
 let s:ternary = '^\s\+[?|:]'
 let s:ternary_q = '^\s\+?'
 
+let s:case_indent = s:sw()
+let s:case_indent_after = s:sw()
+let s:m = matchlist(&cinoptions, ':\(.\)')
+if (len(s:m) > 2)
+    let s:case_indent = s:m[1]
+endif
+let s:m = matchlist(&cinoptions, '=\(.\)')
+if (len(s:m) > 2)
+    let s:case_indent_after = s:m[1]
+endif
 " 2. Auxiliary Functions {{{1
 " ======================
 
@@ -191,9 +212,9 @@ function s:GetVarIndent(lnum)
 
     " if the previous line doesn't end in a comma, return to regular indent
     if (line !~ s:comma_last)
-      return indent(prev_lnum) - &sw
+      return indent(prev_lnum) - s:sw()
     else
-      return indent(lvar) + &sw
+      return indent(lvar) + s:sw()
     endif
   endif
 
@@ -300,6 +321,17 @@ function GetJavascriptIndent()
   " previous nonblank line number
   let prevline = prevnonblank(v:lnum - 1)
 
+  if (line =~ s:expr_case)
+    if (getline(prevline) =~ s:expr_case)
+      return indent(prevline)
+    else
+      if (getline(prevline) =~ s:block_regex)
+        return indent(prevline) + s:case_indent
+      else
+        return indent(prevline) - s:case_indent_after
+      endif
+    endif
+  endif
   " If we got a closing bracket on an empty line, find its match and indent
   " according to it.  For parentheses we indent to its column - 1, for the
   " others we indent to the containing line's MSL's level.  Return -1 if fail.
@@ -321,7 +353,7 @@ function GetJavascriptIndent()
           return indent(prevline)
         " otherwise we indent 1 level
         else
-          return indent(lvar) + &sw
+          return indent(lvar) + s:sw()
         endif
       endif
     endif
@@ -340,14 +372,17 @@ function GetJavascriptIndent()
 
   " If the line is comma first, dedent 1 level
   if (getline(prevline) =~ s:comma_first)
-    return indent(prevline) - &sw
+    return indent(prevline) - s:sw()
+  endif
+  if (getline(prevline) =~ s:expr_case)
+    return indent(prevline) + s:case_indent_after
   endif
 
   if (line =~ s:ternary)
     if (getline(prevline) =~ s:ternary_q)
       return indent(prevline)
     else
-      return indent(prevline) + &sw
+      return indent(prevline) + s:sw()
     endif
   endif
 
@@ -385,27 +420,31 @@ function GetJavascriptIndent()
     return 0
   endif
 
-  " Set up variables for current line.
-  let line = getline(lnum)
-  let ind = indent(lnum)
 
   " If the previous line ended with a block opening, add a level of indent.
   if s:Match(lnum, s:block_regex)
-    return indent(s:GetMSL(lnum, 0)) + &sw
+    if (line =~ s:expr_case)
+      return indent(s:GetMSL(lnum, 0)) + s:sw()/2
+    else
+      return indent(s:GetMSL(lnum, 0)) + s:sw()
+    endif
   endif
 
+  " Set up variables for current line.
+  let line = getline(lnum)
+  let ind = indent(lnum)
   " If the previous line contained an opening bracket, and we are still in it,
   " add indent depending on the bracket type.
   if line =~ '[[({]'
     let counts = s:LineHasOpeningBrackets(lnum)
     if counts[0] == '1' && searchpair('(', '', ')', 'bW', s:skip_expr) > 0
       if col('.') + 1 == col('$')
-        return ind + &sw
+        return ind + s:sw()
       else
         return virtcol('.')
       endif
     elseif counts[1] == '1' || counts[2] == '1'
-      return ind + &sw
+      return ind + s:sw()
     else
       call cursor(v:lnum, vcol)
     end
@@ -415,18 +454,18 @@ function GetJavascriptIndent()
   " --------------------------
 
   let ind_con = ind
-  let ind = s:IndentWithContinuation(lnum, ind_con, &sw)
+  let ind = s:IndentWithContinuation(lnum, ind_con, s:sw())
 
   " }}}2
   "
   "
   let ols = s:InOneLineScope(lnum)
   if ols > 0
-    let ind = ind + &sw
+    let ind = ind + s:sw()
   else
     let ols = s:ExitingOneLineScope(lnum)
     while ols > 0 && ind > 0
-      let ind = ind - &sw
+      let ind = ind - s:sw()
       let ols = s:InOneLineScope(ols - 1)
     endwhile
   endif

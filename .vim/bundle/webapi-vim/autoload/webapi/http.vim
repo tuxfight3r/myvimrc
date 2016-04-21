@@ -9,7 +9,7 @@ set cpo&vim
 
 let s:system = function(get(g:, 'webapi#system_function', 'system'))
 
-function! s:nr2byte(nr)
+function! s:nr2byte(nr) abort
   if a:nr < 0x80
     return nr2char(a:nr)
   elseif a:nr < 0x800
@@ -25,7 +25,7 @@ function! s:nr2byte(nr)
   endif
 endfunction
 
-function! s:nr2enc_char(charcode)
+function! s:nr2enc_char(charcode) abort
   if &encoding == 'utf-8'
     return nr2char(a:charcode)
   endif
@@ -36,7 +36,7 @@ function! s:nr2enc_char(charcode)
   return char
 endfunction
 
-function! s:nr2hex(nr)
+function! s:nr2hex(nr) abort
   let n = a:nr
   let r = ""
   while n
@@ -46,7 +46,7 @@ function! s:nr2hex(nr)
   return r
 endfunction
 
-function! s:urlencode_char(c, ...)
+function! s:urlencode_char(c, ...) abort
   let is_binary = get(a:000, 1)
   if !is_binary
     let c = iconv(a:c, &encoding, "utf-8")
@@ -61,18 +61,18 @@ function! s:urlencode_char(c, ...)
   return s
 endfunction
 
-function! webapi#http#decodeURI(str)
+function! webapi#http#decodeURI(str) abort
   let ret = a:str
   let ret = substitute(ret, '+', ' ', 'g')
   let ret = substitute(ret, '%\(\x\x\)', '\=printf("%c", str2nr(submatch(1), 16))', 'g')
   return ret
 endfunction
 
-function! webapi#http#escape(str)
+function! webapi#http#escape(str) abort
   return substitute(a:str, '[^a-zA-Z0-9_.~/-]', '\=s:urlencode_char(submatch(0))', 'g')
 endfunction
 
-function! webapi#http#encodeURI(items, ...)
+function! webapi#http#encodeURI(items, ...) abort
   let is_binary = get(a:000, 1)
   let ret = ''
   if type(a:items) == 4
@@ -91,7 +91,7 @@ function! webapi#http#encodeURI(items, ...)
   return ret
 endfunction
 
-function! webapi#http#encodeURIComponent(items)
+function! webapi#http#encodeURIComponent(items) abort
   let ret = ''
   if type(a:items) == 4
     for key in sort(keys(a:items))
@@ -122,7 +122,7 @@ function! webapi#http#encodeURIComponent(items)
   return ret
 endfunction
 
-function! webapi#http#get(url, ...)
+function! webapi#http#get(url, ...) abort
   let getdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let follow = a:0 > 2 ? a:000[2] : 1
@@ -132,7 +132,7 @@ function! webapi#http#get(url, ...)
     let url .= "?" . getdatastr
   endif
   if executable('curl')
-    let command = printf('curl %s -s -k -i', follow ? '-L' : '')
+    let command = printf('curl -q %s -s -k -i', follow ? '-L' : '')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
@@ -196,7 +196,7 @@ function! webapi#http#get(url, ...)
   \}
 endfunction
 
-function! webapi#http#post(url, ...)
+function! webapi#http#post(url, ...) abort
   let postdata = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let method = a:0 > 2 ? a:000[2] : "POST"
@@ -209,7 +209,7 @@ function! webapi#http#post(url, ...)
   endif
   let file = tempname()
   if executable('curl')
-    let command = printf('curl %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
+    let command = printf('curl -q %s -s -k -i -X %s', (follow ? '-L' : ''), len(method) ? method : 'POST')
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(headdata)
       if has('win32')
@@ -240,7 +240,7 @@ function! webapi#http#post(url, ...)
   endif
   call delete(file)
   if follow != 0
-    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || res =~ '^HTTP/1\.\d 100 Continue'
+    while res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' || ($HTTP_PROXY != "" && res =~ '^HTTP/1\.[01] [0-9]\{3} \w\+\n\nHTTP/1\.[01] [0-9]\{3} \w\+')
       let pos = stridx(res, "\r\n\r\n")
       if pos != -1
         let res = strpart(res, pos+4)

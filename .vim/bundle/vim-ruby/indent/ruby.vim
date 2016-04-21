@@ -123,7 +123,7 @@ let s:indent_access_modifier_regex = '\C^\s*\%(protected\|private\)\s*\%(#.*\)\=
 " The reason is that the pipe matches a hanging "|" operator.
 "
 let s:block_regex =
-      \ '\%(\<do:\@!\>\|%\@<!{\)\s*\%(|\s*(*\s*\%([*@&]\=\h\w*,\=\s*\)\%(,\s*(*\s*[*@&]\=\h\w*\s*)*\s*\)*|\)\=\s*\%(#.*\)\=$'
+      \ '\%(\<do:\@!\>\|%\@<!{\)\s*\%(|[^|]*|\)\=\s*\%(#.*\)\=$'
 
 let s:block_continuation_regex = '^\s*[^])}\t ].*'.s:block_regex
 
@@ -440,10 +440,14 @@ function GetRubyIndent(...)
 
       if strpart(line, 0, col('.') - 1) =~ '=\s*$' &&
             \ strpart(line, col('.') - 1, 2) !~ 'do'
+        " assignment to case/begin/etc, on the same line, hanging indent
         let ind = virtcol('.') - 1
       elseif getline(msl) =~ '=\s*\(#.*\)\=$'
+        " in the case of assignment to the msl, align to the starting line,
+        " not to the msl
         let ind = indent(line('.'))
       else
+        " align to the msl
         let ind = indent(msl)
       endif
     endif
@@ -508,7 +512,16 @@ function GetRubyIndent(...)
 
   " If the previous line ended with a block opening, add a level of indent.
   if s:Match(lnum, s:block_regex)
-    return indent(s:GetMSL(lnum)) + sw
+    let msl = s:GetMSL(lnum)
+
+    if getline(msl) =~ '=\s*\(#.*\)\=$'
+      " in the case of assignment to the msl, align to the starting line,
+      " not to the msl
+      let ind = indent(lnum) + sw
+    else
+      let ind = indent(msl) + sw
+    endif
+    return ind
   endif
 
   " If the previous line started with a leading operator, use its MSL's level
