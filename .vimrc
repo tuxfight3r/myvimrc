@@ -198,42 +198,47 @@ let g:Powerline_symbols = 'fancy'
 
 
 "   *** TIPS ***
-"
+
 "MARKERS: 
-"		  ma
-"		  mb
-"		  :
-"		  'a,'bs/test/foo/g
+" ma
+" mb
+" :
+" 'a,'bs/test/foo/g
+
+"BUFFERS / TABS:
+" :e  | :tabe filename - open the file to buffer or to tab
+" :ls | :tabs  - show opened / available buffers
+" :b <n>  -  select the buffer in current pane
 
 "COMMAND WINDOW:
-"		  q:  #to open and select the line
-"		  :	  #press enter twice to run that command
-"		  ctrl-c # to close the window
-"
+" q:  #to open and select the line
+" :   #press enter twice to run that command
+" ctrl-c # to close the window
+
 "REGEX:
-"		 %s/\(.*\)/Hello \1/g 
-"		 %s/\v^%(foo){1,3}(.+)bar$/\1/ #help :h \v
+" %s/\(.*\)/Hello \1/g 
+" %s/\v^%(foo){1,3}(.+)bar$/\1/ #help :h \v
 
 "SPLIT WINDOWS:
-"		  :split - ctrl-w to switch windows
-"		  :vsplit - ctrl-w to switch windows
-"		  :resize or resize 20 - full or 20lines in the current pane
-"		  ctrl + o - max the window
-"		  ctrl + r|R - swap the windows
-"		  ctrl + w w or direction( L|R|U|D)
+" :split - ctrl-w to switch windows
+" :vsplit - ctrl-w to switch windows
+" :resize or resize 20 - full or 20lines in the current pane
+" ctrl + o - max the window
+" ctrl + r|R - swap the windows
+" ctrl + w w or direction( L|R|U|D)
 
 "NERD TREE:
-"m - menu | ctrl-n for toggle
-" t, i, s - opens files in newtab, hsplit or vsplit
+" m - menu | ctrl-n for toggle
+" press key t, i, s - opens files in newtab, hsplit or vsplit
 
 "FOLD TRICK:
-"zf#j - # n no of line - zf2j (2 lines)
-"v {select lines} + zf - visual select fold
-"zf/<word> - till the next occurance of the word from cursor (fold a block of lines))
-"zo - open the fold at the cursor
-"zc - close the fold at the cursor
-"zd - deletes the fold at the cursor
-"za - Toggle the fold at the cursor
+" zf#j - # n no of line - zf2j (2 lines)
+" v {select lines} + zf - visual select fold
+" zf/<word> - till the next occurance of the word from cursor (fold a block of lines))
+" zo - open the fold at the cursor
+" zc - close the fold at the cursor
+" zd - deletes the fold at the cursor
+" za - Toggle the fold at the cursor
 
 " RECORD AND REPLAY MACROS:
 " change records alternately in a file
@@ -250,3 +255,4 @@ let g:Powerline_symbols = 'fancy'
 " MODELINE MAGIC:
 " \ml     -  Insert the modeline magic
 
+" vim: set ft=vim ts=4 sw=2 tw=78 sts=2 noet :
