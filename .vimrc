@@ -180,8 +180,8 @@ endfunc
 " Use substitute() instead of printf() to handle '%%s' modeline in LaTeX
 " files.
 function! AppendModeline()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d sts=%d %set :",
-        \ &tabstop, &shiftwidth, &textwidth, &softtabstop, &expandtab ? '' : 'no')
+  let l:modeline = printf(" vim: set ft=%s ts=%d sw=%d tw=%d sts=%d %set :",
+        \ &ft, &tabstop, &shiftwidth, &textwidth, &softtabstop, &expandtab ? '' : 'no')
   let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
   call append(line("$"), l:modeline)
 endfunction
@@ -199,31 +199,54 @@ let g:Powerline_symbols = 'fancy'
 
 "   *** TIPS ***
 "
-"Markers: ma
+"MARKERS: 
+"		  ma
 "		  mb
 "		  :
 "		  'a,'bs/test/foo/g
-"
-"Command window:
+
+"COMMAND WINDOW:
 "		  q:  #to open and select the line
 "		  :	  #press enter twice to run that command
 "		  ctrl-c # to close the window
 "
-"Regex:
+"REGEX:
 "		 %s/\(.*\)/Hello \1/g 
 "		 %s/\v^%(foo){1,3}(.+)bar$/\1/ #help :h \v
-"
-"Split windows:
+
+"SPLIT WINDOWS:
 "		  :split - ctrl-w to switch windows
 "		  :vsplit - ctrl-w to switch windows
-"
-"Nerd Tree
+"		  :resize or resize 20 - full or 20lines in the current pane
+"		  ctrl + o - max the window
+"		  ctrl + r|R - swap the windows
+"		  ctrl + w w or direction( L|R|U|D)
+
+"NERD TREE:
 "m - menu | ctrl-n for toggle
-"
-"Fold Trick
+" t, i, s - opens files in newtab, hsplit or vsplit
+
+"FOLD TRICK:
 "zf#j - # n no of line - zf2j (2 lines)
+"v {select lines} + zf - visual select fold
 "zf/<word> - till the next occurance of the word from cursor (fold a block of lines))
 "zo - open the fold at the cursor
 "zc - close the fold at the cursor
 "zd - deletes the fold at the cursor
 "za - Toggle the fold at the cursor
+
+" RECORD AND REPLAY MACROS:
+" change records alternately in a file
+" qa      -   record in the register a
+" j       -   jump to next line
+" 0       -   move to beginning
+" cwcase  -   change the word with case
+" esc     -   exit out of insert mode
+" j       -   jump to next line
+" 0       -   move to beginning
+" q       -   stop the recording
+" @a or 10@a - replay the macro n no of times
+
+" MODELINE MAGIC:
+" \ml     -  Insert the modeline magic
+
