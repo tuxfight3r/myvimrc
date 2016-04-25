@@ -225,7 +225,7 @@ let g:Powerline_symbols = 'fancy'
 " :resize or resize 20 - full or 20lines in the current pane
 " ctrl + o - max the window
 " ctrl + r|R - swap the windows
-" ctrl + w w or direction( L|R|U|D)
+" ctrl + w w or direction( L|R|U|D) - select the active pane
 
 "NERD TREE:
 " m - menu | ctrl-n for toggle
