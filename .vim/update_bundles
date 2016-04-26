@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+#Updated 26/04/2016
+
+require 'fileutils'
+require 'open-uri'
 
 git_bundles = [
   "git@github.com:astashov/vim-ruby-debugger.git",
@@ -28,16 +32,16 @@ git_bundles = [
   "git@github.com:mattn/webapi-vim.git",
   "git@github.com:scrooloose/syntastic",
   "git@github.com:rodjek/vim-puppet.git",
-  "git@github.com:vim-scripts/Specky.git"
+  "git@github.com:vim-scripts/Specky.git",
+  "git@github.com:Shougo/unite.vim.git",
+  "git@github.com:Quramy/vison.git",
+  "git@github.com:honza/vim-snippets.git"
 ]
 
 vim_org_scripts = [
   ["IndexedSearch", "7062",  "plugin"],
   ["jquery",        "12107", "syntax"],
 ]
-
-require 'fileutils'
-require 'open-uri'
 
 bundles_dir = File.join(File.dirname(__FILE__), "bundle")
 
@@ -51,6 +55,14 @@ git_bundles.each do |url|
   puts "unpacking #{url} into #{dir}"
   `git clone #{url} #{dir}`
   FileUtils.rm_rf(File.join(dir, ".git"))
+
+  if url.include? "vim-snippets"
+    #clearing existing snippets
+    FileUtils.rm_rf(File.join("snipmate.vim", "snippets"))
+    puts "copying vim-snippets to snipmate folder"
+    FileUtils.cp_r("vim-snippets/snippets","snipmate.vim", :verbose=> true)
+    FileUtils.rm_rf("vim-snippets")
+  end
 end
 
 vim_org_scripts.each do |name, script_id, script_type|
