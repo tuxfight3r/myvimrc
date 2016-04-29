@@ -97,7 +97,7 @@ set listchars=tab:▸\ ,eol:¬,nbsp:⋅
 
 " Turn on language spell check
 set nospell
-nnoremap <F6> :setlocal spell spelllang=en_GB<CR>
+nnoremap <F6> :setlocal spell! spelllang=en_gb<CR>
 
 " Format the status line
 "set statusline+=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ %m\ \ \ %=%{&ff}\ \ \%y\ \ \ Line:%l,%c\ \ \ Percentage:\ %P
