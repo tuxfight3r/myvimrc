@@ -12,7 +12,7 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 *  jquery
 *  matchit.zip
 *  nerdtree
-*  snipmate.vim
+*  snipmate.vim (with snippets from vim-snippets)_
 *  Specky
 *  supertab
 *  syntastic
@@ -36,4 +36,5 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 *  vim-surround
 *  vim-tmux
 *  vim-vividchalk
+*  vim-windowsswap
 

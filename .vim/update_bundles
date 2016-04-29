@@ -35,7 +35,8 @@ git_bundles = [
   "git@github.com:vim-scripts/Specky.git",
   "git@github.com:Shougo/unite.vim.git",
   "git@github.com:Quramy/vison.git",
-  "git@github.com:honza/vim-snippets.git"
+  "git@github.com:honza/vim-snippets.git",
+  "git@github.com:wesQ3r/vim-windowswap.git"
 ]
 
 vim_org_scripts = [

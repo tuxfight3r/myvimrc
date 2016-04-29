@@ -95,6 +95,10 @@ set list
 nnoremap <F5> :set nolist!<CR>
 set listchars=tab:▸\ ,eol:¬,nbsp:⋅
 
+" Turn on language spell check
+set nospell
+nnoremap <F6> :setlocal spell spelllang=en_GB<CR>
+
 " Format the status line
 "set statusline+=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ %m\ \ \ %=%{&ff}\ \ \%y\ \ \ Line:%l,%c\ \ \ Percentage:\ %P
 
@@ -211,6 +215,11 @@ let g:Powerline_symbols = 'fancy'
 " :ls | :tabs  - show opened / available buffers
 " :b <n>  -  select the buffer in current pane
 
+" REGISTERS:
+" "ayy  -  yank a text into a register. register [a-z]
+" "ap   -  paste a text into a register. register [a-z]
+" :reg  - show all registers
+
 "COMMAND WINDOW:
 " q:  #to open and select the line
 " :   #press enter twice to run that command
@@ -224,6 +233,7 @@ let g:Powerline_symbols = 'fancy'
 " :split - ctrl-w to switch windows
 " :vsplit - ctrl-w to switch windows
 " :resize or resize 20 - full or 20lines in the current pane
+" :vertical resize or vertical resize 20 - full or 20lines in the current pane
 " ctrl + o - max the window
 " ctrl + r|R - swap the windows
 " ctrl + w w or direction( L|R|U|D) - select the active pane
@@ -255,5 +265,9 @@ let g:Powerline_symbols = 'fancy'
 
 " MODELINE MAGIC:
 " \ml     -  Insert the modeline magic
+"
+" WINDOWS SWAP:
+" \yw     - yank Window
+" \pw     - paste window
 
 " vim: set ft=vim ts=4 sw=2 tw=78 sts=2 noet :
