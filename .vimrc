@@ -3,7 +3,7 @@
 " my .vimrc settings file
 
 " Sets how many lines of history VIM has to remember
-set history=1000
+set history=10000
 
 " Set format options
 set formatoptions=tcqr
@@ -14,23 +14,8 @@ set wildmenu
 " Always show current position
 set ruler
 
-" Display line number
-" set nu! - to hide numbers
-" set number
-nnoremap <F3> :set nonumber!<CR>
-
 " *** INDENTING ***
 set autoindent
-
-" Enable filetype plugins
-filetype plugin indent on
-autocmd FileType * setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
-autocmd FileType ruby setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
-autocmd FileType python setlocal tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
-" set no wrap long lines of code
-set nowrap
-nnoremap <F4> :set wrap!<CR>
 
 " Use relevant spaces instead of tabs in insert mode
 set noexpandtab
@@ -46,9 +31,6 @@ set softtabstop=2
 
 " Columns text is indented
 set shiftwidth=2
-
-" Paste toggle shortcut
-set pastetoggle=<F2>
 
 " Enable syntax Highlighting
 syntax on
@@ -78,28 +60,13 @@ set incsearch
 "Always show current position
 set ruler
 
-"Highlight Current line
-set cursorline
-hi ColorColumn  ctermbg=darkgrey guibg=gray13 cterm=underline term=underline guifg=white
-"hi CursorLine   ctermbg=DarkMagenta guibg=gray13 cterm=NONE term=bold guifg=white
-hi CursorLine   ctermbg=darkgray guibg=gray13 cterm=NONE term=bold guifg=white
-
 " don't blink the cursor
 set guicursor+=i:blinkwait0
 
 " Always show the status line
 set laststatus=2
 
-" set the end of line character
-set list
-nnoremap <F5> :set nolist!<CR>
-set listchars=tab:▸\ ,eol:¬,nbsp:⋅
-
-" Turn on language spell check
-set nospell
-nnoremap <F6> :setlocal spell! spelllang=en_gb<CR>
-
-" Format the status line
+" Format the status line - #commented out for powerline
 "set statusline+=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ %m\ \ \ %=%{&ff}\ \ \%y\ \ \ Line:%l,%c\ \ \ Percentage:\ %P
 
 " Display the current mode
@@ -114,6 +81,24 @@ set foldmethod=marker foldmarker={{{,}}}
 
 " set modeline for modeline magic
 set modeline
+
+" Remember info about open buffers on close
+set viminfo^=%
+
+" Necessary for vimrc environment settings 
+set nocompatible
+
+"Highlight Current line
+set cursorline
+hi ColorColumn  ctermbg=darkgrey guibg=gray13 cterm=underline term=underline guifg=white
+"hi CursorLine   ctermbg=DarkMagenta guibg=gray13 cterm=NONE term=bold guifg=white
+hi CursorLine   ctermbg=darkgray guibg=gray13 cterm=NONE term=bold guifg=white
+
+" Enable filetype plugins
+filetype plugin indent on
+autocmd FileType * setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
+autocmd FileType ruby setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
+autocmd FileType python setlocal tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 " Puppet Settings
 au BufRead,BufNewFile *.pp   setfiletype puppet
@@ -134,10 +119,27 @@ autocmd BufReadPost *
      \   exe "normal! g`\"" |
      \ endif
 
-" Remember info about open buffers on close
-set viminfo^=%
+" **** KEYBOARD SHORTCUTS ****
+" Paste toggle shortcut
+set pastetoggle=<F2>
 
-set nocompatible
+" Display line number
+" set nu! - to hide numbers
+" set number
+nnoremap <F3> :set nonumber!<CR>
+
+" set no wrap long lines of code
+set nowrap
+nnoremap <F4> :set wrap!<CR>
+
+" set the end of line character
+set list
+nnoremap <F5> :set nolist!<CR>
+set listchars=tab:▸\ ,eol:¬,nbsp:⋅
+
+" Turn on language spell check
+set nospell
+nnoremap <F6> :setlocal spell! spelllang=en_gb<CR>
 
 " *** Helper Functions ***
 
