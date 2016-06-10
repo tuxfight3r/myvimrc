@@ -100,6 +100,9 @@ autocmd FileType * setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
 autocmd FileType ruby setlocal tabstop=4 noexpandtab shiftwidth=2 softtabstop=2
 autocmd FileType python setlocal tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
+"set foldmethod for xml types
+au FileType xml setlocal foldmethod=syntax
+
 " Puppet Settings
 au BufRead,BufNewFile *.pp   setfiletype puppet
 au BufRead,BufNewFile *.pp   set cinwords=if,else,while,do,for,switch,case,cron,package,file,node
@@ -167,6 +170,7 @@ call pathogen#infect()
  let g:syntastic_enable_signs=1
  let g:syntastic_quiet_messages = {'level': 'warnings'}
  let g:syntastic_puppet_puppetlint_args="disable_autoloader_layout"
+ let g:xml_syntax_folding=1
 
  " NerdTree
 autocmd StdinReadPre * let s:std_in=1
