@@ -1,5 +1,6 @@
-" Author: Mohan
+" Author: Mohan Balasundaram
 " Date: 13/05/2013
+" Last Updated: 07/04/2017
 " my .vimrc settings file
 
 " Sets how many lines of history VIM has to remember
@@ -144,6 +145,9 @@ set listchars=tab:▸\ ,eol:¬,nbsp:⋅
 set nospell
 nnoremap <F6> :setlocal spell! spelllang=en_gb<CR>
 
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap w!! w !sudo tee > /dev/null %
+
 " *** Helper Functions ***
 
 " Returns true if paste mode is enabled
@@ -230,6 +234,12 @@ let g:Powerline_symbols = 'fancy'
 " q:  #to open and select the line
 " :   #press enter twice to run that command
 " ctrl-c # to close the window
+" :r file_name - read a file contents to the buffer
+" :r !command  - reads the command output to the buffer
+" :5r!command  - reads the command output to the buffer after 5th line
+" :w !command  - writing buffer text into a command
+" writes the buffer text from the given range into a command
+" :3,$w !awk '{sum+=$1}END{print sum}' - line 3 - till end 
 
 "REGEX:
 " %s/\(.*\)/Hello \1/g 
