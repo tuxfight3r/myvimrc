@@ -36,11 +36,7 @@ git_bundles = [
   "git@github.com:Shougo/unite.vim.git",
   "git@github.com:Quramy/vison.git",
   "git@github.com:honza/vim-snippets.git",
-<<<<<<< 52a1f4c8ae64ba45f65154732e6b9c382325e4d7
-  "git@github.com:wesQ3r/vim-windowswap.git"
-=======
-  "git@github.com:wesQ3/vim-windowswap.git",
->>>>>>> Added window swap plugin
+  "git@github.com:wesQ3r/vim-windowswap.git",
 ]
 
 vim_org_scripts = [
