@@ -36,7 +36,7 @@ git_bundles = [
   "git@github.com:Shougo/unite.vim.git",
   "git@github.com:Quramy/vison.git",
   "git@github.com:honza/vim-snippets.git",
-  "git@github.com:wesQ3r/vim-windowswap.git",
+  "git@github.com:wesQ3/vim-windowswap.git",
   "git@github.com:airblade/vim-gitgutter.git",
 ]
 
