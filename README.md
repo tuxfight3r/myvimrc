@@ -23,6 +23,7 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 *  vim-cucumber
 *  vim-fugitive
 *  vim-git
+*  vim-GitGutter
 *  vim-haml
 *  vim-javascript
 *  vim-markdown
@@ -37,5 +38,3 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 *  vim-tmux
 *  vim-vividchalk
 *  vim-windowsswap
-*  vim-GitGutter
-
