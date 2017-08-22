@@ -5,7 +5,7 @@ My custom .vimrc file with pathogen and all the relevant plugins for syntax high
 
 ~/.vim/update_bundles - ruby script to update the plugins.
 
-#####Available Plugins:#####
+### Available Plugins:
 
 *  Gist.vim
 *  IndexedSearch
