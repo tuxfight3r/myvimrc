@@ -91,9 +91,11 @@ set nocompatible
 
 "Highlight Current line
 set cursorline
-hi ColorColumn  ctermbg=darkgrey guibg=gray13 cterm=underline term=underline guifg=white
 "hi CursorLine   ctermbg=DarkMagenta guibg=gray13 cterm=NONE term=bold guifg=white
 hi CursorLine   ctermbg=darkgray guibg=gray13 cterm=NONE term=bold guifg=white
+
+"Set ColorColum color
+hi ColorColumn ctermbg=darkcyan ctermfg=white guibg=gray13
 
 " Enable filetype plugins
 filetype plugin indent on
@@ -193,6 +195,14 @@ function! <SID>SynStack()
   endif
   echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunc
+
+" colorcolumn to show if 80 chars exceeded
+if exists('+colorcolumn')
+    set colorcolumn=80
+else
+    au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%80v.\+', -1)
+endif
+"let &colorcolumn="80,".join(range(120,999),",")
 
 " ModeLine Magic
 " Append modeline after last line in buffer.
