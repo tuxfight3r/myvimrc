@@ -141,9 +141,12 @@ set list
 nnoremap <F5> :set nolist!<CR>
 set listchars=tab:▸\ ,eol:¬,nbsp:⋅
 
+" Turn on gitgutter plugin
+nnoremap <F6> :GitGutterToggle<CR>
+
 " Turn on language spell check
 set nospell
-nnoremap <F6> :setlocal spell! spelllang=en_gb<CR>
+nnoremap <F7> :setlocal spell! spelllang=en_gb<CR>
 
 " Allow saving of files as sudo when I forgot to start vim using sudo.
 cmap w!! w !sudo tee > /dev/null %
@@ -171,10 +174,11 @@ call pathogen#infect()
  let g:syntastic_auto_loc_list = 1
  let g:syntastic_check_on_open = 1
  let g:syntastic_check_on_wq = 0
- let g:syntastic_enable_signs=1
+ let g:syntastic_enable_signs = 1
  let g:syntastic_quiet_messages = {'level': 'warnings'}
- let g:syntastic_puppet_puppetlint_args="disable_autoloader_layout"
- let g:xml_syntax_folding=1
+ let g:syntastic_puppet_puppetlint_args = "disable_autoloader_layout"
+ let g:xml_syntax_folding = 1
+ let g:gitgutter_enabled = 0
 
  " NerdTree
 autocmd StdinReadPre * let s:std_in=1

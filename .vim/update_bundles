@@ -37,6 +37,7 @@ git_bundles = [
   "git@github.com:Quramy/vison.git",
   "git@github.com:honza/vim-snippets.git",
   "git@github.com:wesQ3r/vim-windowswap.git",
+  "git@github.com:airblade/vim-gitgutter.git",
 ]
 
 vim_org_scripts = [
